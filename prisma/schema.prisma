@@ -1,0 +1,35 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+   previewFeatures = ["multiSchema"] // Enable the multiSchema feature
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public", "auth"]  // Add the 'auth' schema here
+}
+
+model Game {
+  id        Int     @id @default(autoincrement())
+  title     String
+  profileId Int     // Foreign key to link Game to Profile
+  profile   Profile @relation(fields: [profileId], references: [id])
+  @@map("games")  // Link the Prisma Game model to the 'games' table in Supabase
+  @@schema("public")  // Specify that the Game model belongs to the 'public' schema
+}
+
+model Profile {
+  id        Int      @id @default(autoincrement())
+  userId    String   @unique
+  username  String?
+  createdAt DateTime @default(now())
+  Game Game[]
+  @@map("profiles")  // Link the Prisma Profile model to the 'profiles' table in Supabase
+  @@schema("public")  // Specify that the Profile model belongs to the 'public' schema
+}
